@@ -29,7 +29,7 @@ from utils.transformers_config import TransformersConfig
 from exceptions.exceptions import AlgorithmNameMismatchError
 from visualize.data_for_visualization import DataForVisualization
 from utils.utils import create_directory_for_file, load_config_file
-from transformers import LogitsProcessor, LogitsProcessorList, BertTokenizer, BertModel
+from transformers import LogitsProcessor, LogitsProcessorList, BertTokenizer, BertModel, AutoTokenizer, AutoModel
 
 
 class SIRConfig(BaseConfig):
@@ -64,8 +64,12 @@ class SIRUtils:
         """
         self.config = config
         self.transform_model = self._get_transform_model(self.config.transform_model_name, config.transform_model_input_dim).to(self.config.device)
-        self.embedding_tokenizer = BertTokenizer.from_pretrained(self.config.embedding_model_path)
-        self.embedding_model = BertModel.from_pretrained(self.config.embedding_model_path).to(self.config.device)
+        
+        # use perceptiveshawty/compositional-bert-large-uncased  semantics model from Hugging Face Hub
+        self.embedding_tokenizer = AutoTokenizer.from_pretrained('perceptiveshawty/compositional-bert-large-uncased')
+        self.embedding_model = AutoModel.from_pretrained('perceptiveshawty/compositional-bert-large-uncased').to(self.config.device)
+        # self.embedding_tokenizer = BertTokenizer.from_pretrained(self.config.embedding_model_path)
+        # self.embedding_model = BertModel.from_pretrained(self.config.embedding_model_path).to(self.config.device)
         self.mapping = self._get_mapping(self.config.mapping_name)
 
     def get_embedding(self, sentence: str) -> torch.FloatTensor:

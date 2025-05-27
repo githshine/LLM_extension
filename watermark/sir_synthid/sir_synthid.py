@@ -120,6 +120,7 @@ class SIR_SynthID_Config(BaseConfig):
 class SIR_SynthID(BaseWatermark):
     """Top-level class for SIR_SynthID algorithm."""
 
+    # 这里传入的参数 algorithm_config 是 SIR_SynthID_Config 对象
     def __init__(self, algorithm_config: str | SIR_SynthID_Config, transformers_config: TransformersConfig | None = None, *args, **kwargs) -> None:
         """
             Initialize the SIR algorithm.  
@@ -141,13 +142,18 @@ class SIR_SynthID(BaseWatermark):
         else:
             raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
+        self.config_sir = SIRConfig("config/SIR.json");
+        self.config_synthid = SynthIDConfig("config/SynthID.json");
         self.utils_sir = SIRUtils(self.config)
         self.utils_synthid = SynthIDUtils(self.config)
         self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)
         self.logits_processor_synthid = SynthIDLogitsProcessor(self.config, self.utils_synthid)
 
-        self.watermark_sir = SIR(algorithm_config, transformers_config, *args, **kwargs)
-        self.watermark_synthid = SynthID(algorithm_config, transformers_config, *args, **kwargs)
+
+        # 这里代码有问题 TODO
+        # 这里传入的参数 algorithm_config 是 SIR_SynthID_Config 对象
+        self.watermark_sir = SIR(self.config_sir, transformers_config, *args, **kwargs)
+        self.watermark_synthid = SynthID(self.config_synthid, transformers_config, *args, **kwargs)
 
     def generate_watermarked_text(self, prompt: str, *args, **kwargs):
         """Generate watermarked text."""

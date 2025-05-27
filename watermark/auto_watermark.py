@@ -39,6 +39,7 @@ WATERMARK_MAPPING_NAMES={
     'EXPEdit': 'watermark.exp_edit.EXPEdit',
     'ITSEdit': 'watermark.its_edit.ITSEdit',
     'SynthID': 'watermark.synthid.SynthID',
+    'SIR_SynthID': 'watermark.sir_synthid.SIR_SynthID',
     'TS':'watermark.ts.TS',
     'PF':'watermark.pf.PF',
     'MorphMark':'watermark.morphmark.MorphMark',

@@ -74,17 +74,53 @@ class MySynthIDConfig(BaseConfig):
         
         self.top_k = getattr(self.transformers_config, 'top_k', -1)
         self.temperature = getattr(self.transformers_config, 'temperature', 0.7)
+  
         
     @property
     def algorithm_name(self) -> str:
         """Return the algorithm name."""
         return 'SIR_SynthID'
     
+class SIR_SynthID_Config(BaseConfig):
+    def initialize_parameters(self) -> None:
+        """Initialize algorithm-specific parameters. For synthID"""
+        self.ngram_len = self.config_dict['ngram_len']
+        self.keys = self.config_dict['keys']
+        self.sampling_table_size = self.config_dict['sampling_table_size']
+        self.sampling_table_seed = self.config_dict['sampling_table_seed']
+        self.context_history_size = self.config_dict['context_history_size']
+        self.detector_name = self.config_dict['detector_type']
+        self.threshold = self.config_dict['threshold']
+        self.watermark_mode = self.config_dict['watermark_mode']
+        self.num_leaves = self.config_dict['num_leaves']
+
+        # Validate detect mode
+        if self.watermark_mode not in ['distortionary', 'non-distortionary']:
+            raise InvalidWatermarkModeError(self.watermark_mode)
+        
+        self.top_k = getattr(self.transformers_config, 'top_k', -1)
+        self.temperature = getattr(self.transformers_config, 'temperature', 0.7)
+
+
+        """Initialize algorithm-specific parameters. For SIR"""
+        self.delta = self.config_dict['delta']
+        self.chunk_length = self.config_dict['chunk_length']
+        self.scale_dimension = self.config_dict['scale_dimension']
+        self.z_threshold = self.config_dict['z_threshold']
+        self.transform_model_input_dim = self.config_dict['transform_model_input_dim']
+        self.transform_model_name = self.config_dict['transform_model_name']
+        self.embedding_model_path = self.config_dict['embedding_model_path']
+        self.mapping_name = self.config_dict['mapping_name']
+
+    @property
+    def algorithm_name(self) -> str:
+        """Return the algorithm name."""
+        return 'SIR_SynthID'
 
 class SIR_SynthID(BaseWatermark):
     """Top-level class for SIR_SynthID algorithm."""
 
-    def __init__(self, algorithm_config: str, transformers_config: TransformersConfig | None = None, *args, **kwargs) -> None:
+    def __init__(self, algorithm_config: str | SIR_SynthID_Config, transformers_config: TransformersConfig | None = None, *args, **kwargs) -> None:
         """
             Initialize the SIR algorithm.  
 
@@ -92,24 +128,23 @@ class SIR_SynthID(BaseWatermark):
                 algorithm_config (str): Path to the algorithm configuration file.
                 transformers_config (TransformersConfig): Configuration for the transformers model.
         """
-        if isinstance(algorithm_config, str):
-            self.config_sir = MySIRConfig(algorithm_config, transformers_config)
-            self.config_synthid = MySynthIDConfig(algorithm_config, transformers_config)
-        else:
-            raise TypeError("algorithm_config must be a path string ")
-        
-   
-        # if isinstance(algorithm_config_synthid, str):
-        #     self.config_synthid = SynthIDConfig(algorithm_config_synthid, transformers_config)
-        # elif isinstance(algorithm_config_synthid, SynthIDConfig):
-        #     self.config_synthid = algorithm_config_synthid
+        # if isinstance(algorithm_config, str):
+        #     self.config_sir = MySIRConfig(algorithm_config, transformers_config)
+        #     self.config_synthid = MySynthIDConfig(algorithm_config, transformers_config)
         # else:
-        #     raise TypeError("algorithm_config_synthid must be either a path string or a SynthIDConfig instance")
+        #     raise TypeError("algorithm_config must be a path string ")
+   
+        if isinstance(algorithm_config, str):
+            self.config = SIR_SynthID_Config(algorithm_config, transformers_config)
+        elif isinstance(algorithm_config, SIR_SynthID_Config):
+            self.config = algorithm_config
+        else:
+            raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
-        self.utils_sir = SIRUtils(self.config_sir)
-        self.utils_synthid = SynthIDUtils(self.config_synthid)
-        self.logits_processor_sir = SIRLogitsProcessor(self.config_sir, self.utils_sir)
-        self.logits_processor_synthid = SynthIDLogitsProcessor(self.config_synthid, self.utils_synthid)
+        self.utils_sir = SIRUtils(self.config)
+        self.utils_synthid = SynthIDUtils(self.config)
+        self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)
+        self.logits_processor_synthid = SynthIDLogitsProcessor(self.config, self.utils_synthid)
 
         self.watermark_sir = SIR(algorithm_config, transformers_config, *args, **kwargs)
         self.watermark_synthid = SynthID(algorithm_config, transformers_config, *args, **kwargs)

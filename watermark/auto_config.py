@@ -38,6 +38,7 @@ CONFIG_MAPPING_NAMES = {
     'EXPEdit': 'watermark.exp_edit.EXPEditConfig',
     'ITSEdit': 'watermark.its_edit.ITSEditConfig',
     'SynthID': 'watermark.synthid.SynthIDConfig',
+    'SIR_SynthID': 'watermark.sir_synthid.SIR_SynthID_Config',
     'TS': 'watermark.ts.TSConfig',
     'PF': 'watermark.pf.PFConfig',
     'MorphMark': 'watermark.morphmark.MorphMarkConfig',

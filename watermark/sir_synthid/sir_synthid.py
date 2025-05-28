@@ -208,13 +208,13 @@ class SIR_SynthID(BaseWatermark):
       _, synthid_score = self.watermark_synthid.detect_watermark(text)  # ∈ [0, 1]
 
       # Normalize sir_score to [0, 1]
-      sir_score_norm = (sir_score + 1) / 2
+      sir_score_norm = (float(sir_score) + 1) / 2
       sir_threshold = (self.config.z_threshold + 1) / 2
 
       synthid_threshold = self.config.threshold
 
       # Weighted combination
-      combined_score = (1 - delta) * sir_score_norm + delta * synthid_score
+      combined_score = (1 - delta) * sir_score_norm + delta * float(synthid_score)
 
       # Threshold could be configurable or set empirically
       zscore_threshold = (1 - delta) * sir_threshold + delta * synthid_threshold

@@ -204,8 +204,8 @@ class SIR_SynthID(BaseWatermark):
 
       '''
 
-      _, sir_score = self.watermark_sir.detect_watermark(text)      # ∈ [-1, 1]
-      _, synthid_score = self.watermark_synthid.detect_watermark(text)  # ∈ [0, 1]
+      sir_score = ( self.watermark_sir.detect_watermark(text) )['score']     # ∈ [-1, 1]
+      synthid_score = ( self.watermark_synthid.detect_watermark(text) )['score']  # ∈ [0, 1]
 
       # Normalize sir_score to [0, 1]
       sir_score_norm = (float(sir_score) + 1) / 2

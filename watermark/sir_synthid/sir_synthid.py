@@ -157,8 +157,7 @@ class SIR_SynthID(BaseWatermark):
         else:
             raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
-        # self.config_sir = SIRConfig(config_path="config/SIR.json", transformers_config=transformers_config)
-        # self.config_synthid = SynthIDConfig(config_path="config/SynthID.json", transformers_config=transformers_config)
+       
         self.utils_sir = SIRUtils(self.config)
         self.utils_synthid = SynthIDUtils(self.config)
         self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)

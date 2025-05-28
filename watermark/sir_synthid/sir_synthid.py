@@ -157,8 +157,8 @@ class SIR_SynthID(BaseWatermark):
         else:
             raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
-        self.config_sir = SIRConfig(config_path="config/SIR.json", transformers_config=transformers_config)
-        self.config_synthid = SynthIDConfig(config_path="config/SynthID.json", transformers_config=transformers_config)
+        # self.config_sir = SIRConfig(config_path="config/SIR.json", transformers_config=transformers_config)
+        # self.config_synthid = SynthIDConfig(config_path="config/SynthID.json", transformers_config=transformers_config)
         self.utils_sir = SIRUtils(self.config)
         self.utils_synthid = SynthIDUtils(self.config)
         self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)
@@ -210,9 +210,9 @@ class SIR_SynthID(BaseWatermark):
 
       # Normalize sir_score to [0, 1]
       sir_score_norm = (sir_score + 1) / 2
-      sir_threshold = (self.config_sir.z_threshold + 1) / 2
+      sir_threshold = (self.config.z_threshold + 1) / 2
 
-      synthid_threshold = self.config_synthid.threshold
+      synthid_threshold = self.config.threshold
 
       # Weighted combination
       combined_score = (1 - delta) * sir_score_norm + delta * synthid_score

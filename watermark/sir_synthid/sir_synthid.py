@@ -142,16 +142,16 @@ class SIR_SynthID(BaseWatermark):
         else:
             raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
-        self.config_sir = SIRConfig("config/SIR.json");
-        self.config_synthid = SynthIDConfig("config/SynthID.json");
+        self.config_sir = SIRConfig("config/SIR.json", transformers_config);
+        self.config_synthid = SynthIDConfig("config/SynthID.json", transformers_config);
         self.utils_sir = SIRUtils(self.config)
         self.utils_synthid = SynthIDUtils(self.config)
         self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)
         self.logits_processor_synthid = SynthIDLogitsProcessor(self.config, self.utils_synthid)
 
 
-        # 这里代码有问题 TODO
         # 这里传入的参数 algorithm_config 是 SIR_SynthID_Config 对象
+        # 已更新为 直接使用 SIRConfig 和 SynthIDConfig 对象
         self.watermark_sir = SIR(self.config_sir, transformers_config, *args, **kwargs)
         self.watermark_synthid = SynthID(self.config_synthid, transformers_config, *args, **kwargs)
 

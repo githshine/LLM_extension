@@ -169,6 +169,28 @@ class DynamicThresholdSuccessRateCalculator(BaseSuccessRateCalculator):
                 best_threshold = threshold
                 best_metrics = metrics
         return best_threshold
+    
+    '''给定最大 和 最小的 threshold，之后逐渐遍历 来获取最合适的 threshold'''
+    def _find_best_threshold_full_search(self, inputs: List[DetectionResult], step: float = 0.05) -> float:
+        """Find the best threshold by searching the full range of possible thresholds."""
+        # 这一步可以省略，应为在进入函数前，inputs 已经经过 sort 了
+        # sorted_inputs = sorted(inputs, key=lambda x: x.detect_result)
+        min_value = 0.4   # True 最小的 score
+        max_value = 0.6  # False 最大的 score
+
+        best_threshold = 0
+        best_f1 = 0
+
+        # 遍历所有可能的阈值
+        threshold = min_value
+        while threshold <= max_value:
+            metrics = self._compute_metrics(inputs, threshold)
+            if metrics['F1'] > best_f1:
+                best_f1 = metrics['F1']
+                best_threshold = threshold
+            threshold += step
+
+        return best_threshold
 
     def _find_threshold_by_fpr(self, inputs: List[DetectionResult]) -> float:
         """Find the threshold that achieves the target FPR."""
@@ -218,9 +240,13 @@ class DynamicThresholdSuccessRateCalculator(BaseSuccessRateCalculator):
 
     def calculate(self, watermarked_result: List[float], non_watermarked_result: List[float]) -> Dict[str, float]:
         """Calculate success rates based on provided results."""
+        # 检查 watermarked_result 和 non_watermarked_result 列表中的每一个数据都是 float 类型 -- scores
         self._check_instance(watermarked_result + non_watermarked_result, float)
 
+        # 将 watermarked_result 和 non_watermarked_result 两个结果列表 
+        #         转换成 DetectionResult（包含两个属性：gold_label 和 detect_result） 对象的列表
         inputs = [DetectionResult(True, x) for x in watermarked_result] + [DetectionResult(False, x) for x in non_watermarked_result]
         threshold = self._find_threshold(inputs)
         metrics = self._compute_metrics(inputs, threshold)
+        # 最终只会输出 DynamicThresholdSuccessRateCalculator 这个类初始化是定义的 labels 的指标
         return self._filter_metrics(metrics)

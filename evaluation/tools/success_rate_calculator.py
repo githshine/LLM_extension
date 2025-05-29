@@ -63,7 +63,7 @@ class BaseSuccessRateCalculator:
         """Calculate success rates based on provided results."""
         pass
     
-    def plot_roc_curve(inputs: List[DetectionResult]):
+    def plot_roc_curve(self,inputs: List[DetectionResult]):
         """
         Plot the ROC curve based on DetectionResult inputs.
 
@@ -73,6 +73,8 @@ class BaseSuccessRateCalculator:
         # 提取 gold_label 和 detect_result
         y_true = [x.gold_label for x in inputs]  # 真实标签
         y_scores = [x.detect_result for x in inputs]  # 检测分数
+
+        self._check_instance(y_scores, float) # 需要检测分数
 
         # 使用 sklearn 计算 FPR, TPR 和阈值
         fpr, tpr, thresholds = roc_curve(y_true, y_scores) # roc_curve 函数会自动会 y_scores 进行排序
@@ -146,8 +148,8 @@ class FundamentalSuccessRateCalculator(BaseSuccessRateCalculator):
 
         inputs = [DetectionResult(True, x) for x in watermarked_result] + [DetectionResult(False, x) for x in non_watermarked_result]
         # 绘制 ROC 曲线
-        self.plot_roc_curve(inputs);
-        
+        # self.plot_roc_curve(inputs); # 不能调用这个函数，因为 inputs 中 没有 scores，只有 是假的检测结果，是 bool 值
+
         metrics = self._compute_metrics(inputs)
         return self._filter_metrics(metrics)
 
@@ -286,9 +288,11 @@ class DynamicThresholdSuccessRateCalculator(BaseSuccessRateCalculator):
         inputs = [DetectionResult(True, x) for x in watermarked_result] + [DetectionResult(False, x) for x in non_watermarked_result]
         
         # 绘制 ROC 曲线
+        # 需要两个数据： z_scores 和 ground_labels（期望标签） 
         self.plot_roc_curve(inputs);
 
         threshold = self._find_threshold(inputs)
+        print(f"{self.rule} threshold is: {threshold}")
         metrics = self._compute_metrics(inputs, threshold)
         # 最终只会输出 DynamicThresholdSuccessRateCalculator 这个类初始化是定义的 labels 的指标
         return self._filter_metrics(metrics)

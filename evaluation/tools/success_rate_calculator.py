@@ -19,6 +19,8 @@
 
 from typing import List, Dict, Union
 from exceptions.exceptions import TypeMismatchException, ConfigurationError
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
 
 
 class DetectionResult:
@@ -60,6 +62,39 @@ class BaseSuccessRateCalculator:
     def calculate(self, watermarked_result: List[Union[bool, float]], non_watermarked_result: List[Union[bool, float]]) -> Dict[str, float]:
         """Calculate success rates based on provided results."""
         pass
+    
+    def plot_roc_curve(inputs: List[DetectionResult]):
+        """
+        Plot the ROC curve based on DetectionResult inputs.
+
+        Parameters:
+            inputs (List[DetectionResult]): List of DetectionResult objects containing gold_label and detect_result.
+        """
+        # 提取 gold_label 和 detect_result
+        y_true = [x.gold_label for x in inputs]  # 真实标签
+        y_scores = [x.detect_result for x in inputs]  # 检测分数
+
+        # 使用 sklearn 计算 FPR, TPR 和阈值
+        fpr, tpr, thresholds = roc_curve(y_true, y_scores) # roc_curve 函数会自动会 y_scores 进行排序
+
+        # 计算 AUC（曲线下面积）
+        roc_auc = auc(fpr, tpr)
+
+        # 绘制 ROC 曲线
+        plt.figure(figsize=(8, 6))
+        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+        plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1, label='Random Guess')
+        plt.xlabel('False Positive Rate (FPR)')
+        plt.ylabel('True Positive Rate (TPR)')
+        plt.title('Receiver Operating Characteristic (ROC) Curve')
+        plt.legend(loc='lower right')
+        plt.grid(alpha=0.3)
+        plt.show()
+
+    # 示例调用
+    inputs = [DetectionResult(True, 0.9), DetectionResult(True, 0.8), DetectionResult(False, 0.4), DetectionResult(False, 0.3)]
+    plot_roc_curve(inputs)
+    
 
 
 class FundamentalSuccessRateCalculator(BaseSuccessRateCalculator):
@@ -110,6 +145,9 @@ class FundamentalSuccessRateCalculator(BaseSuccessRateCalculator):
         self._check_instance(non_watermarked_result, bool)
 
         inputs = [DetectionResult(True, x) for x in watermarked_result] + [DetectionResult(False, x) for x in non_watermarked_result]
+        # 绘制 ROC 曲线
+        self.plot_roc_curve(inputs);
+        
         metrics = self._compute_metrics(inputs)
         return self._filter_metrics(metrics)
 
@@ -246,7 +284,14 @@ class DynamicThresholdSuccessRateCalculator(BaseSuccessRateCalculator):
         # 将 watermarked_result 和 non_watermarked_result 两个结果列表 
         #         转换成 DetectionResult（包含两个属性：gold_label 和 detect_result） 对象的列表
         inputs = [DetectionResult(True, x) for x in watermarked_result] + [DetectionResult(False, x) for x in non_watermarked_result]
+        
+        # 绘制 ROC 曲线
+        self.plot_roc_curve(inputs);
+
         threshold = self._find_threshold(inputs)
         metrics = self._compute_metrics(inputs, threshold)
         # 最终只会输出 DynamicThresholdSuccessRateCalculator 这个类初始化是定义的 labels 的指标
         return self._filter_metrics(metrics)
+
+
+    

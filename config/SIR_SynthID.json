@@ -29,6 +29,6 @@
   },
 
   "_comment_3": "This config is for deceding the importance of SIR and SynthID of the whole new model",
-  "descript": "may need to use a list later, to find out what is the best model_delta",
+  "descript": "may need to use a list later, to find out what is the best model_delta [ TODO ] ",
   "model_delta": 0.5
 }

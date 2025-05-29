@@ -26,5 +26,9 @@
   "threshold": 0.52,
   "gen_kwargs": {
     "max_new_tokens": 200
-  }
+  },
+
+  "_comment_3": "This config is for deceding the importance of SIR and SynthID of the whole new model",
+  "descript": "may need to use a list later, to find out what is the best model_delta",
+  "model_delta": 0.5
 }

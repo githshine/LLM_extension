@@ -162,7 +162,11 @@ class SIRLogitsProcessor(LogitsProcessor):
     
     def _bias_logits(self, scores: torch.LongTensor, batched_bias: torch.FloatTensor) -> torch.FloatTensor:
         """Bias the logits using the batched_bias."""
+        print("Inside SIRLogitProcessor: \n")
+        print(f"bias: {batched_bias},  delta: {self.config.delta}")
+        print(f"scores before bias: {scores}")
         scores = scores + batched_bias * self.config.delta
+        print(f"final scores (= scores+bias*delta): {scores}")
         return scores
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:

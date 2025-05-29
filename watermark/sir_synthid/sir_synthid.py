@@ -126,6 +126,7 @@ class SIR_SynthID_Config(SIRConfig, SynthIDConfig):
         """Initialize both SIR and SynthID parameters."""
         SynthIDConfig.initialize_parameters(self)
         SIRConfig.initialize_parameters(self)
+        self.config.model_delta =  self.config_dict['model_delta']
 
     @property
     def algorithm_name(self) -> str:
@@ -188,7 +189,7 @@ class SIR_SynthID(BaseWatermark):
         return watermarked_text
 
     '''改变 delta 的值 (0.2 -> 0.8), 画出不同值下的 AOC 曲线 TODO''' 
-    def detect_watermark(self, text: str, delta: float = 0.5, zscore_threshold : float = 0.5, return_dict: bool = True, *args, **kwargs):
+    def detect_watermark(self, text: str, model_delta: float = 0.5, zscore_threshold : float = 0.5, return_dict: bool = True, *args, **kwargs):
       """Detect watermark using combined SIR + SynthID score."""
       '''
       Args:
@@ -203,6 +204,7 @@ class SIR_SynthID(BaseWatermark):
           or just by (1- delta) * sit_threshold + delta * synthid_threshold
 
       '''
+      model_delta = self.config.model_delta
 
       sir_score = ( self.watermark_sir.detect_watermark(text) )['score']     # ∈ [-1, 1]
       synthid_score = ( self.watermark_synthid.detect_watermark(text) )['score']  # ∈ [0, 1]
@@ -214,22 +216,22 @@ class SIR_SynthID(BaseWatermark):
       synthid_threshold = self.config.threshold
 
       # Weighted combination
-      combined_score = (1 - delta) * sir_score_norm + delta * float(synthid_score)
+      combined_score = (1 - model_delta) * sir_score_norm + model_delta * float(synthid_score)
 
       # Threshold could be configurable or set empirically
-      zscore_threshold = (1 - delta) * sir_threshold + delta * synthid_threshold
+      zscore_threshold = (1 - model_delta) * sir_threshold + model_delta * synthid_threshold
       is_watermarked = combined_score > zscore_threshold
 
       if return_dict:
           return {
               "is_watermarked": is_watermarked,
-              "combined_score": combined_score,
+              "score": combined_score,
               "sir_score": sir_score,
               "synthid_score": synthid_score,
-              "delta": delta
+              "model_delta": model_delta
           }
       else:
-          return is_watermarked, combined_score
+          return (is_watermarked, combined_score)
 
 
 

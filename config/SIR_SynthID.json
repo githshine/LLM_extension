@@ -8,7 +8,7 @@
   "transform_model_input_dim": 1024,
   "transform_model_name": "watermark/sir/model/transform_model_cbert.pth",
   "embedding_model_path": "watermark/sir/model/compositional-bert-large-uncased/",
-  "mapping_name": "watermark/sir/mapping/300_mapping_50272.json",
+  "mapping_name": "watermark/sir/mapping/300_mapping_32000.json",
 
   "_comment_": "This config is for the synthid algorithm, used for watermark detection.",
   "algorithm_name_2": "SynthID",

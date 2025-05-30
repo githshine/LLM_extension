@@ -26,10 +26,10 @@ from functools import partial
 from ..base import BaseWatermark, BaseConfig
 from .transform_model import TransformModel
 from utils.transformers_config import TransformersConfig
-from exceptions.exceptions import AlgorithmNameMismatchError
+# from exceptions.exceptions import AlgorithmNameMismatchError
 from visualize.data_for_visualization import DataForVisualization
-from utils.utils import create_directory_for_file, load_config_file
-from transformers import LogitsProcessor, LogitsProcessorList, BertTokenizer, BertModel, AutoTokenizer, AutoModel
+from utils.utils import create_directory_for_file
+from transformers import LogitsProcessor, LogitsProcessorList, BertTokenizer, BertModel
 
 
 class SIRConfig(BaseConfig):
@@ -145,6 +145,10 @@ class SIRUtils:
         context_embedding = self.get_embedding(context_sentence)
         output = self.transform_model(context_embedding).cpu()[0].numpy()
         similarity_array = self.scale_vector(output)[self.mapping]
+        # 确保返回的 bias 长度与 vocab_size 一致
+        if len(similarity_array) != self.config.vocab_size:
+            raise ValueError(f"Bias length mismatch: expected {self.config.vocab_size}, got {len(similarity_array)}")
+
         return -similarity_array
 
 
@@ -168,6 +172,10 @@ class SIRLogitsProcessor(LogitsProcessor):
         print(f"scores before bias: {scores}")
         print("From Paper: In our work, the values of watermark logits(is bias here) are almost exclusively 1 or -1")
         print(f"bias: {batched_bias},  delta: {self.config.delta}")
+        
+        # 确保形状匹配
+        if scores.shape != batched_bias.shape:
+          raise ValueError(f"Shape mismatch: scores shape {scores.shape}, batched_bias shape {batched_bias.shape}")
         scores = scores + batched_bias * self.config.delta
         print(f"final scores (= scores+bias*delta): {scores}")
         return scores

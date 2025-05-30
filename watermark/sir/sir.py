@@ -66,16 +66,18 @@ class SIRUtils:
         self.transform_model = self._get_transform_model(self.config.transform_model_name, config.transform_model_input_dim).to(self.config.device)
         
         # use perceptiveshawty/compositional-bert-large-uncased  semantics model from Hugging Face Hub
-        self.embedding_tokenizer = AutoTokenizer.from_pretrained('perceptiveshawty/compositional-bert-large-uncased')
-        self.embedding_model = AutoModel.from_pretrained('perceptiveshawty/compositional-bert-large-uncased').to(self.config.device)
-        # self.embedding_tokenizer = BertTokenizer.from_pretrained(self.config.embedding_model_path)
-        # self.embedding_model = BertModel.from_pretrained(self.config.embedding_model_path).to(self.config.device)
+        # self.embedding_tokenizer = AutoTokenizer.from_pretrained('perceptiveshawty/compositional-bert-large-uncased')
+        # self.embedding_model = AutoModel.from_pretrained('perceptiveshawty/compositional-bert-large-uncased').to(self.config.device)
+        self.embedding_tokenizer = BertTokenizer.from_pretrained(self.config.embedding_model_path)
+        self.embedding_model = BertModel.from_pretrained(self.config.embedding_model_path).to(self.config.device)
         self.mapping = self._get_mapping(self.config.mapping_name)
 
     def get_embedding(self, sentence: str) -> torch.FloatTensor:
         """Get the embedding of the input sentence."""
         input_ids = self.embedding_tokenizer.encode(sentence, return_tensors="pt", max_length=512, truncation="longest_first")
         input_ids = input_ids.to(self.config.device)
+
+        # 禁用 梯度计算「减少内存占用」，只使用模型的推理能力 来获取 模型的输出
         with torch.no_grad():
             output = self.embedding_model(input_ids)
         return output[0][:, 0, :]
@@ -163,8 +165,9 @@ class SIRLogitsProcessor(LogitsProcessor):
     def _bias_logits(self, scores: torch.LongTensor, batched_bias: torch.FloatTensor) -> torch.FloatTensor:
         """Bias the logits using the batched_bias."""
         print("Inside SIRLogitProcessor: \n")
-        print(f"bias: {batched_bias},  delta: {self.config.delta}")
         print(f"scores before bias: {scores}")
+        print("From Paper: In our work, the values of watermark logits(is bias here) are almost exclusively 1 or -1")
+        print(f"bias: {batched_bias},  delta: {self.config.delta}")
         scores = scores + batched_bias * self.config.delta
         print(f"final scores (= scores+bias*delta): {scores}")
         return scores

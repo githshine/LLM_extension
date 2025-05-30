@@ -45,7 +45,13 @@ class SIRConfig(BaseConfig):
         self.transform_model_name = self.config_dict['transform_model_name']
         self.embedding_model_path = self.config_dict['embedding_model_path']
         self.mapping_name = self.config_dict['mapping_name']
-    
+
+        # 在 SIRConfig 的 initialize_parameters 方法中添加以下代码
+        self.vocab_size = self.config_dict.get('vocab_size', None)
+        if self.vocab_size is None:
+            self.vocab_size = self.generation_tokenizer.vocab_size  # 从 tokenizer 获取 vocab_size
+            print(f"transformers_config tokenizer's vocab_size is: {self.vocab_size}")
+            print('\n')
     @property
     def algorithm_name(self) -> str:
         """Return the algorithm name."""

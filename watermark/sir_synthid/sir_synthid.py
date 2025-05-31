@@ -81,7 +81,10 @@ class MySynthIDConfig(BaseConfig):
         """Return the algorithm name."""
         return 'SIR_SynthID'
     
-class SIR_SynthID_Config(SIRConfig, SynthIDConfig):
+class SIR_SynthID_Config(BaseConfig, SIRConfig, SynthIDConfig):
+    # def __init__(self, config_dict, transformers_config):
+    #     super().__init__(config_dict, transformers_config)
+    #     self.config = transformers_config  # Initialize the 'config' attribute
     # def initialize_parameters(self) -> None:
     #     """Initialize algorithm-specific parameters. For synthID"""
     #     self.ngram_len = self.config_dict['ngram_len']
@@ -122,11 +125,13 @@ class SIR_SynthID_Config(SIRConfig, SynthIDConfig):
     #     SynthIDConfig.initialize_parameters(self)
     #     SIRConfig.initialize_parameters(self)
 
+    #     self.model_delta = self.config_dict['model_delta']
+
     def initialize_parameters(self) -> None:
         """Initialize both SIR and SynthID parameters."""
         SynthIDConfig.initialize_parameters(self)
         SIRConfig.initialize_parameters(self)
-        self.config.model_delta =  self.config_dict['model_delta']
+        self.model_delta = self.config_dict['model_delta']
 
     @property
     def algorithm_name(self) -> str:

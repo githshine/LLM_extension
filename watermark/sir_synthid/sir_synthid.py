@@ -80,61 +80,59 @@ class MySynthIDConfig(BaseConfig):
     def algorithm_name(self) -> str:
         """Return the algorithm name."""
         return 'SIR_SynthID'
-    
-class SIR_SynthID_Config(BaseConfig, SIRConfig, SynthIDConfig):
-    # def __init__(self, config_dict, transformers_config):
-    #     super().__init__(config_dict, transformers_config)
-    #     self.config = transformers_config  # Initialize the 'config' attribute
-    # def initialize_parameters(self) -> None:
-    #     """Initialize algorithm-specific parameters. For synthID"""
-    #     self.ngram_len = self.config_dict['ngram_len']
-    #     self.keys = self.config_dict['keys']
-    #     self.sampling_table_size = self.config_dict['sampling_table_size']
-    #     self.sampling_table_seed = self.config_dict['sampling_table_seed']
-    #     self.context_history_size = self.config_dict['context_history_size']
-    #     self.detector_name = self.config_dict['detector_type']
-    #     self.threshold = self.config_dict['threshold']
-    #     self.watermark_mode = self.config_dict['watermark_mode']
-    #     self.num_leaves = self.config_dict['num_leaves']
 
-    #     # Validate detect mode
-    #     if self.watermark_mode not in ['distortionary', 'non-distortionary']:
-    #         raise InvalidWatermarkModeError(self.watermark_mode)
-        
-    #     self.top_k = getattr(self.transformers_config, 'top_k', -1)
-    #     self.temperature = getattr(self.transformers_config, 'temperature', 0.7)
+class SIR_SynthID_Config(BaseConfig):
+    """Combined configuration for both SIR and SynthID algorithms."""
 
+    def __init__(self, 
+                 algorithm_config_path: str,
+                 transformers_config: TransformersConfig,
+                 *args, **kwargs) -> None:
+        """
+        Initialize combined config with both SIR and SynthID configs.
 
-    #     """Initialize algorithm-specific parameters. For SIR"""
-    #     self.delta = self.config_dict['delta']
-    #     self.chunk_length = self.config_dict['chunk_length']
-    #     self.scale_dimension = self.config_dict['scale_dimension']
-    #     self.z_threshold = self.config_dict['z_threshold']
-    #     self.transform_model_input_dim = self.config_dict['transform_model_input_dim']
-    #     self.transform_model_name = self.config_dict['transform_model_name']
-    #     self.embedding_model_path = self.config_dict['embedding_model_path']
-    #     self.mapping_name = self.config_dict['mapping_name']
+        Parameters:
+            algorithm_config_path (str): Path to config file.
+            transformers_config (TransformersConfig): Huggingface transformer config.
+            model_delta (float): Custom parameter for this combined config.
+        """
+        # Initialize parent (BaseConfig)
+        super().__init__(algorithm_config_path, transformers_config, *args, **kwargs)
+        # 从 config_dict 中读取自定义参数
+        self.model_delta = self.config_dict.get("model_delta", 0.5)  # 默认值为 0.5
 
-    """Combined config for both SIR and SynthID algorithms."""
-
-    # def __init__(self, *args, **kwargs):
-    #     # 初始化 BaseConfig，确保 config_dict 和 transformers_config 被设置
-    #     super().__init__(*args, **kwargs)
-
-    #     # 显式调用两个父类的初始化逻辑
-    #     SynthIDConfig.initialize_parameters(self)
-    #     SIRConfig.initialize_parameters(self)
-
-    #     self.model_delta = self.config_dict['model_delta']
+        # Create sub-config instances
+        self.sir_config = SIRConfig(algorithm_config_path, transformers_config, *args, **kwargs)
+        self.synthid_config = SynthIDConfig(algorithm_config_path, transformers_config, *args, **kwargs)
 
     def initialize_parameters(self) -> None:
-        """Initialize both SIR and SynthID parameters."""
-        SynthIDConfig.initialize_parameters(self)
-        SIRConfig.initialize_parameters(self)
-        self.model_delta = self.config_dict['model_delta']
+        """Optional: No algorithm-specific parameters for the combined config itself."""
+        # This method can be left empty or used to unify settings from both configs if needed.
+        pass
 
     @property
     def algorithm_name(self) -> str:
+        return "sir_synthid"
+
+    
+# class SIR_SynthID_Config(BaseConfig):
+#     """Combined config for both SIR and SynthID algorithms."""
+#     def __init__(self, algorithm_config, transformers_config):
+#         super().__init__(algorithm_config, transformers_config)
+#         self.sir_config = SIRConfig(algorithm_config, transformers_config)
+#         self.synthid_config = SynthIDConfig(algorithm_config, transformers_config)
+
+#         # Initialize algorithm-specific parameters
+#         self.initialize_parameters()
+    
+#     def initialize_parameters(self) -> None:
+#         """Initialize both SIR and SynthID parameters."""
+#         # self.sir_config.initialize_parameters()
+#         # self.synthid_config.initialize_parameters()
+#         self.model_delta = self.config_dict['model_delta']
+
+#     @property
+#     def algorithm_name(self) -> str:
         """Return the algorithm name."""
         return 'SIR_SynthID'
 
@@ -164,16 +162,16 @@ class SIR_SynthID(BaseWatermark):
             raise TypeError("algorithm_config must be either a path string or a SIR_SynthID_Config instance")
         
        
-        self.utils_sir = SIRUtils(self.config)
-        self.utils_synthid = SynthIDUtils(self.config)
-        self.logits_processor_sir = SIRLogitsProcessor(self.config, self.utils_sir)
-        self.logits_processor_synthid = SynthIDLogitsProcessor(self.config, self.utils_synthid)
+        self.utils_sir = SIRUtils(self.config.sir_config)
+        self.utils_synthid = SynthIDUtils(self.config.synthid_config)
+        self.logits_processor_sir = SIRLogitsProcessor(self.config.sir_config, self.utils_sir)
+        self.logits_processor_synthid = SynthIDLogitsProcessor(self.config.synthid_config, self.utils_synthid)
 
 
         # 这里传入的参数 algorithm_config 是 SIR_SynthID_Config 对象
         # 已更新为 直接使用 SIRConfig 和 SynthIDConfig 对象
-        self.watermark_sir = SIR(self.config, transformers_config, *args, **kwargs)
-        self.watermark_synthid = SynthID(self.config, transformers_config, *args, **kwargs)
+        self.watermark_sir = SIR(self.config.sir_config, transformers_config, *args, **kwargs)
+        self.watermark_synthid = SynthID(self.config.synthid_config, transformers_config, *args, **kwargs)
 
     def generate_watermarked_text(self, prompt: str, *args, **kwargs):
         """Generate watermarked text."""

@@ -174,16 +174,16 @@ class SIRLogitsProcessor(LogitsProcessor):
     
     def _bias_logits(self, scores: torch.LongTensor, batched_bias: torch.FloatTensor) -> torch.FloatTensor:
         """Bias the logits using the batched_bias."""
-        print("Inside SIRLogitProcessor: \n")
-        print(f"scores before bias: {scores}")
-        print("From Paper: In our work, the values of watermark logits(is bias here) are almost exclusively 1 or -1")
-        print(f"bias: {batched_bias},  delta: {self.config.delta}")
+        # print("Inside SIRLogitProcessor: \n")
+        # print(f"scores before bias: {scores}")
+        # print("From Paper: In our work, the values of watermark logits(is bias here) are almost exclusively 1 or -1")
+        # print(f"bias: {batched_bias},  delta: {self.config.delta}")
         
         # 确保形状匹配
         if scores.shape != batched_bias.shape:
           raise ValueError(f"Shape mismatch: scores shape {scores.shape}, batched_bias shape {batched_bias.shape}")
         scores = scores + batched_bias * self.config.delta
-        print(f"final scores (= scores+bias*delta): {scores}")
+        # print(f"final scores (= scores+bias*delta): {scores}")
         return scores
 
     def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor) -> torch.FloatTensor:

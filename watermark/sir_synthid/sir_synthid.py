@@ -214,9 +214,9 @@ class SIR_SynthID(BaseWatermark):
 
       # Normalize sir_score to [0, 1]
       sir_score_norm = (float(sir_score) + 1) / 2
-      sir_threshold = (self.config.z_threshold + 1) / 2
+      sir_threshold = (self.config.sir_config.z_threshold + 1) / 2
 
-      synthid_threshold = self.config.threshold
+      synthid_threshold = self.config.synthid_config.threshold
 
       # Weighted combination
       combined_score = (1 - model_delta) * sir_score_norm + model_delta * float(synthid_score)

@@ -93,9 +93,9 @@ class BaseSuccessRateCalculator:
         plt.grid(alpha=0.3)
         plt.show()
 
-    # 示例调用
-    inputs = [DetectionResult(True, 0.9), DetectionResult(True, 0.8), DetectionResult(False, 0.4), DetectionResult(False, 0.3)]
-    plot_roc_curve(inputs)
+      # # 示例调用
+      # inputs = [DetectionResult(True, 0.9), DetectionResult(True, 0.8), DetectionResult(False, 0.4), DetectionResult(False, 0.3)]
+      # plot_roc_curve(inputs)
     
 
 

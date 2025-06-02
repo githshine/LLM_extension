@@ -93,6 +93,45 @@ class BaseSuccessRateCalculator:
         plt.grid(alpha=0.3)
         plt.show()
 
+    def plot_multiple_roc_curve(self, labels: List[str], inputs_list: List[List[DetectionResult]] ):
+      """
+      Plot multiple ROC curves based on DetectionResult inputs.
+
+      Parameters:
+      inputs_list (List[List[DetectionResult]]): List of lists of DetectionResult objects containing gold_label and detect_result.
+      labels (List[str]): List of labels for each ROC curve, must match the length of inputs_list.
+      """
+      if len(inputs_list) != len(labels):
+        raise ValueError("The length of inputs_list and labels must be the same.")
+
+      plt.figure(figsize=(8, 6))
+
+      for idx, (inputs, label) in enumerate(zip(inputs_list, labels)):
+        y_true = [x.gold_label for x in inputs]  # True labels
+        y_scores = [x.detect_result for x in inputs]  # Detection scores
+
+        self._check_instance(y_scores, float)  # Ensure scores are floats
+
+        # Compute FPR, TPR, and thresholds using sklearn
+        fpr, tpr, _ = roc_curve(y_true, y_scores)
+
+        # Compute AUC (Area Under the Curve)
+        roc_auc = auc(fpr, tpr)
+
+        # Plot the ROC curve for this set of inputs
+        plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.2f})')
+
+      # Add a diagonal line for random guessing
+      plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1, label='Random Guess')
+
+      # Add labels, title, legend, and grid
+      plt.xlabel('False Positive Rate (FPR)')
+      plt.ylabel('True Positive Rate (TPR)')
+      plt.title('Receiver Operating Characteristic (ROC) Curves')
+      plt.legend(loc='lower right')
+      plt.grid(alpha=0.3)
+      plt.show()
+
       # # 示例调用
       # inputs = [DetectionResult(True, 0.9), DetectionResult(True, 0.8), DetectionResult(False, 0.4), DetectionResult(False, 0.3)]
       # plot_roc_curve(inputs)

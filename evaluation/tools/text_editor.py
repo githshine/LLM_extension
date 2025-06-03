@@ -375,6 +375,48 @@ class SynonymSubstitution(TextEditor):
 
         return replaced_text
 
+class CopyPasteAttack(TextEditor):
+    '''Copy watermarked text into unwatermarked text, and then detect the combined text'''
+    def __init__(self, ratio: float) -> None:
+        """
+            Initialize the copy-paste attack editor.
+
+            Parameters:
+                ratio (float): The ratio of words to paste.
+        """
+        self.ratio = ratio
+
+        
+
+    def edit(self, text: str, reference=None):
+      """Copy original text into extra text. The length of the extra text is determined by the ratio."""
+
+      # Handle empty string input
+      if not text:  
+        return text
+
+      # Split the text into words
+      word_list = text.split()
+
+      before_paragraph = "A recent development has drawn widespread attention from both the public and experts, as new information emerges that could fundamentally reshape our understanding of the issue. Although the full picture is still unfolding, early reports suggest that the implications may be far-reaching, potentially affecting multiple sectors. The news has already sparked a wave of responses from researchers, policymakers, and concerned citizens, highlighting a wide range of perspectives and growing public interest. Some analysts believe this moment could mark a turning point—not only in how the matter is addressed going forward but also in how it is perceived by society as a whole. With uncertainty still surrounding many of the details, there are increasing calls for greater transparency, accountability, and thorough investigation into what led to this situation. As events continue to evolve, staying informed will be crucial. Here’s what we know so far—and why it matters in the days and weeks ahead."
+      after_paragraph = "As more information becomes available, updates will be provided to keep the public fully informed of any major developments. Authorities and subject-matter experts are continuing their investigations to better understand the full scope and underlying causes of the situation. Early findings have already raised important questions that could influence future discussions, both within policy circles and among the general public. Many analysts believe the outcome of this case could have ripple effects across related sectors, prompting a reassessment of existing practices or frameworks. Because of the issue’s complexity, perspectives may shift as new evidence emerges and public understanding deepens. Throughout this process, transparency and clear communication will be critical in maintaining trust and encouraging constructive dialogue. For now, the situation remains dynamic, and readers are encouraged to stay informed as the story continues to evolve."
+
+      # Split the before and after paragraphs into words
+      before_words = before_paragraph.split()
+      after_words = after_paragraph.split()
+
+      # Calculate the number of words to take based on the ratio
+      num_extra_words = num_after_words = int(len(word_list) * self.ratio * 0.5)
+
+      # Take the last `num_extra_words` from before_paragraph and the last `num_extra_words` from after_paragraph
+      before_excerpt = before_words[-num_extra_words:]
+      after_excerpt = after_words[-num_extra_words:]
+
+      # Add the excerpts to the text
+      edited_text = ' '.join(before_excerpt) + ' ' + ' '.join(word_list) + ' ' + ' '.join(after_excerpt)
+
+      return edited_text
+       
 
 class ContextAwareSynonymSubstitution(TextEditor):
     """Randomly replace words with synonyms from WordNet based on the context."""

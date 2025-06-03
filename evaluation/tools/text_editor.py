@@ -418,6 +418,8 @@ class ContextAwareSynonymSubstitution(TextEditor):
 
         real_replace = 0
 
+        replace_details = []  # Array to store replace indices and predicted tokens
+
         for i in indices_to_replace:
             # Create a sentence with a [MASK] token
             masked_sentence = words[:i] + ['[MASK]'] + words[i+1:]
@@ -435,6 +437,12 @@ class ContextAwareSynonymSubstitution(TextEditor):
             predicted_tokens = self.tokenizer.convert_ids_to_tokens(predicted_indices[0:1])
             words[i] = predicted_tokens[0]
             real_replace += 1
+
+            # Record the replace index and predicted token
+            replace_details.append((i, predicted_tokens[0]))
+
+        # Print the replace details
+        print("ContextAwareSynonymSubstitution --- Replace Details:\n", replace_details)
         
         replaced_text = ' '.join(words)
 

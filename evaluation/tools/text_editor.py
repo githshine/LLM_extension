@@ -406,11 +406,18 @@ class CopyPasteAttack(TextEditor):
       after_words = after_paragraph.split()
 
       # Calculate the number of words to take based on the ratio
-      num_extra_words = num_after_words = int(len(word_list) * self.ratio * 0.5)
+      num_extra_words = int(len(word_list) * self.ratio * 0.5)
 
-      # Take the last `num_extra_words` from before_paragraph and the last `num_extra_words` from after_paragraph
-      before_excerpt = before_words[-num_extra_words:]
-      after_excerpt = after_words[-num_extra_words:]
+      # Handle cases where num_extra_words is greater than the length of before_words or after_words
+      if num_extra_words > len(before_words):
+          before_excerpt = (before_words * ((num_extra_words // len(before_words)) + 1))[-num_extra_words:]
+      else:
+          before_excerpt = before_words[-num_extra_words:]
+
+      if num_extra_words > len(after_words):
+          after_excerpt = (after_words * ((num_extra_words // len(after_words)) + 1))[-num_extra_words:]
+      else:
+          after_excerpt = after_words[-num_extra_words:]
 
       # Add the excerpts to the text
       edited_text = ' '.join(before_excerpt) + ' ' + ' '.join(word_list) + ' ' + ' '.join(after_excerpt)

@@ -441,10 +441,15 @@ class ContextAwareSynonymSubstitution(TextEditor):
             # Record the replace index and predicted token
             replace_details.append((i, predicted_tokens[0]))
 
+        replaced_text = ' '.join(words)
+
         # Print the replace details
         print("ContextAwareSynonymSubstitution --- Replace Details:\n", replace_details)
-        
-        replaced_text = ' '.join(words)
+
+        print('Text before substitution: \n')
+        print(text)
+        print('Text after substitution: \n')
+        print(replaced_text)
 
         return replaced_text
 

@@ -251,7 +251,7 @@ class DipperParaphraser(TextEditor):
     
     def _validate_diversity(self, value: int, type_name: str):
         """Validate the diversity value."""
-        if value not in [0, 20, 40, 60, 80, 100]:
+        if value not in [0,5,10, 20, 40, 60, 80, 100]:
             raise DiversityValueError(type_name)
 
     def edit(self, text: str, reference: str):

@@ -32,7 +32,7 @@ from nltk.tokenize import sent_tokenize
 from utils.openai_utils import OpenAIAPI
 from exceptions.exceptions import DiversityValueError
 from evaluation.tools.oracle import QualityOracle
-from transformers import T5Tokenizer, T5ForConditionalGeneration, BertTokenizer, BertForMaskedLM
+from transformers import T5Tokenizer, T5ForConditionalGeneration, BertTokenizer, BertForMaskedLM, AutoTokenizer, AutoModelForSeq2SeqLM
 
 class TextEditor:
     """Base class for text editing."""
@@ -199,6 +199,55 @@ class RandomWalkAttack(TextEditor):
 
         return corrected_text
 
+
+class TranslateAttack(TextEditor):
+    """Paraphrase a text using the GPT model."""
+
+    def __init__(self, tokenizer: AutoTokenizer, model: AutoModelForSeq2SeqLM, 
+                 src_lang="eng_Latn", tgt_lang="zho_Hans", batch_size=2, device='cuda', **kwargs):
+        """
+            Paraphrase a text using the DIPPER model.
+
+            Parameters:
+                tokenizer (AutoTokenizer): The tokenizer for the DIPPER model.
+                model (AutoModelForSeq2SeqLM): The DIPPER model.
+                device (str): The device to use for inference.
+                src_lang: Source language.
+                tgt_lang: Target language.
+                batch_size: default is 2, means every time 2 sentences will be sent to translate.
+        """
+        self.tokenizer = tokenizer
+        self.model = model.eval()
+        self.device = device
+        self.src_lang = src_lang
+        self.tgt_lang = tgt_lang
+        self.batch_size = batch_size
+        self.gen_kwargs = {}
+        self.gen_kwargs.update(kwargs)
+
+    def translate_batch(self, text: str, src_lang, tgt_lang):
+        """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
+        self.tokenizer.src_lang = src_lang
+        results = []
+        sentences = sent_tokenize(text)  # 按句子分割
+
+        for i in range(0, len(sentences), self.batch_size):
+            batch = sentences[i:i+self.batch_size]
+            batch_text = " ".join(batch)  # 合并句子
+            inputs = self.tokenizer(batch_text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(self.device)
+            inputs["forced_bos_token_id"] = self.tokenizer.lang_code_to_id[tgt_lang]
+            outputs = self.model.generate(**inputs, max_length=512)
+            decoded = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+            results.extend(decoded)
+        return results
+    
+    def edit(self, text: str, reference=None):
+        """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
+        translated_to_chinese = self.translate_batch(text, src_lang="eng_Latn", tgt_lang="zho_Hans")
+        translated_to_english = self.translate_batch(translated_to_chinese, src_lang="zho_Hans", tgt_lang="eng_Latn")
+        return translated_to_english
+
+    
 class GPTParaphraser(TextEditor):
     """Paraphrase a text using the GPT model."""
 

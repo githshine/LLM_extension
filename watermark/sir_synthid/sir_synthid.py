@@ -99,7 +99,7 @@ class SIR_SynthID_Config(BaseConfig):
         # Initialize parent (BaseConfig)
         super().__init__(algorithm_config_path, transformers_config, *args, **kwargs)
         # 从 config_dict 中读取自定义参数
-        self.model_delta = self.config_dict.get("model_delta", 0.5)  # 默认值为 0.5
+        self.model_delta = self.config_dict.get("model_delta")  # 默认值为 0.5
 
         # Create sub-config instances
         self.sir_config = SIRConfig(algorithm_config_path, transformers_config, *args, **kwargs)

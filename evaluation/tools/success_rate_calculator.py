@@ -131,10 +131,28 @@ class BaseSuccessRateCalculator:
       plt.legend(loc='lower right')
       plt.grid(alpha=0.3)
       plt.show()
-
       # # 示例调用
       # inputs = [DetectionResult(True, 0.9), DetectionResult(True, 0.8), DetectionResult(False, 0.4), DetectionResult(False, 0.3)]
       # plot_roc_curve(inputs)
+
+      # ✅ 新增：绘制放大区域图（FPR < 0.1）
+      plt.figure(figsize=(8, 6))
+      for idx, (inputs, label) in enumerate(zip(inputs_list, labels)):
+          y_true = [x.gold_label for x in inputs]
+          y_scores = [x.detect_result for x in inputs]
+          fpr, tpr, _ = roc_curve(y_true, y_scores)
+          roc_auc = auc(fpr, tpr)
+          plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.2f})')
+
+      plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1)
+      plt.xlabel('False Positive Rate (FPR)')
+      plt.ylabel('True Positive Rate (TPR)')
+      plt.title('Zoomed-in ROC Curve (FPR < 0.1)')
+      plt.xlim(0.0, 0.1)
+      plt.ylim(0.9, 1.01)
+      plt.legend(loc='lower right')
+      plt.grid(alpha=0.3)
+      plt.show()
     
 
 

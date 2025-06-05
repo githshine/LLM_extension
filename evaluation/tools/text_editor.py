@@ -235,7 +235,19 @@ class TranslateAttack(TextEditor):
             batch = sentences[i:i+self.batch_size]
             batch_text = " ".join(batch)  # 合并句子
             inputs = self.tokenizer(batch_text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(self.device)
-            inputs["forced_bos_token_id"] = self.tokenizer.lang_code_to_id[tgt_lang]
+            
+            # inputs["forced_bos_token_id"] = self.tokenizer.lang_code_to_id[tgt_lang]
+            # 设置目标语言的语言 ID
+            if hasattr(self.tokenizer, "lang_code_to_id"):
+                inputs["forced_bos_token_id"] = self.tokenizer.lang_code_to_id[tgt_lang]
+            else:
+                # 手动设置语言 ID
+                lang_code_to_id = {
+                    "eng_Latn": 128001,  # 英语
+                    "zho_Hans": 128002,  # 简体中文
+                }
+                inputs["forced_bos_token_id"] = lang_code_to_id[tgt_lang]
+
             outputs = self.model.generate(**inputs, max_length=512)
             decoded = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
             results.extend(decoded)

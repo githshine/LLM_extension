@@ -33,6 +33,7 @@ from utils.openai_utils import OpenAIAPI
 from exceptions.exceptions import DiversityValueError
 from evaluation.tools.oracle import QualityOracle
 from transformers import T5Tokenizer, T5ForConditionalGeneration, BertTokenizer, BertForMaskedLM, AutoTokenizer, AutoModelForSeq2SeqLM
+import re
 
 class TextEditor:
     """Base class for text editing."""
@@ -229,7 +230,12 @@ class TranslateAttack(TextEditor):
         """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
         self.tokenizer.src_lang = src_lang
         results = []
-        sentences = sent_tokenize(text)  # 按句子分割
+
+        if src_lang == 'eng_Latn':  # 英文
+          sentences = sent_tokenize(text)  # 按句子分割
+        elif src_lang == 'zho_Hans' :  # 中文简体
+          sentences = re.split(r'(?<=[。！？])', text)
+          sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
 
         for i in range(0, len(sentences), self.batch_size):
             batch = sentences[i:i+self.batch_size]
@@ -251,7 +257,7 @@ class TranslateAttack(TextEditor):
             outputs = self.model.generate(**inputs, max_length=512)
             decoded = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
             results.extend(decoded)
-        return results
+        return " ".join(results) # 输出 字符串
     
     def edit(self, text: str, reference=None):
         """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""

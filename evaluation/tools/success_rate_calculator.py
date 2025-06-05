@@ -74,6 +74,15 @@ class BaseSuccessRateCalculator:
         y_true = [x.gold_label for x in inputs]  # 真实标签
         y_scores = [x.detect_result for x in inputs]  # 检测分数
 
+        # 检查并过滤 NaN 和 None 值
+        valid_indices = [i for i, score in enumerate(y_scores) if score is not None and score == score]  # 排除 NaN 和 None
+        y_true = [y_true[i] for i in valid_indices]
+        y_scores = [y_scores[i] for i in valid_indices]
+
+        # 确保过滤后的数据不为空
+        if not y_true or not y_scores:
+            raise ValueError("All input scores are NaN or invalid.")
+
         self._check_instance(y_scores, float) # 需要检测分数
 
         # 使用 sklearn 计算 FPR, TPR 和阈值

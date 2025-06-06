@@ -93,7 +93,7 @@ class BaseSuccessRateCalculator:
 
         # 绘制 ROC 曲线
         plt.figure(figsize=(8, 6))
-        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')
+        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.4f})')
         plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1, label='Random Guess')
         plt.xlabel('False Positive Rate (FPR)')
         plt.ylabel('True Positive Rate (TPR)')
@@ -128,7 +128,7 @@ class BaseSuccessRateCalculator:
         roc_auc = auc(fpr, tpr)
 
         # Plot the ROC curve for this set of inputs
-        plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.2f})')
+        plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.4f})')
 
       # Add a diagonal line for random guessing
       plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1, label='Random Guess')
@@ -151,7 +151,7 @@ class BaseSuccessRateCalculator:
           y_scores = [x.detect_result for x in inputs]
           fpr, tpr, _ = roc_curve(y_true, y_scores)
           roc_auc = auc(fpr, tpr)
-          plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.2f})')
+          plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.4f})')
 
       plt.plot([0, 1], [0, 1], color='gray', linestyle='--', lw=1)
       plt.xlabel('False Positive Rate (FPR)')

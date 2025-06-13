@@ -627,13 +627,13 @@ class ContextAwareSynonymSubstitution(TextEditor):
 
         replaced_text = ' '.join(words)
 
-        # Print the replace details
-        print("ContextAwareSynonymSubstitution --- Replace Details:\n", replace_details)
+        # Print the replace details  TODO 后面用少量数据（比如 20个） 去尝试这个输出
+        # print("ContextAwareSynonymSubstitution --- Replace Details:\n", replace_details)
 
-        print('Text before substitution: \n')
-        print(text)
-        print('Text after substitution: \n')
-        print(replaced_text)
+        # print('Text before substitution: \n')
+        # print(text)
+        # print('Text after substitution: \n')
+        # print(replaced_text)
 
         return replaced_text
 

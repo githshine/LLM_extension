@@ -362,6 +362,24 @@ class DipperParaphraser(TextEditor):
 
         return output_text
 
+# 字符攻击
+class EmojiAttack(TextEditor):
+    """Add emojis 😋😋 after every word."""
+
+    def __init__(self, ratio: float) -> None:
+        super().__init__()
+
+    def edit(self, text: str, reference=None):
+        """Delete emojis added in generation process."""
+
+        # Handle empty string input
+        if not text:  
+            return text
+
+        # Delete every emojis in the text
+        edited_text = text.replace("😋", "")
+
+        return edited_text
 
 class WordDeletion(TextEditor):
     """Delete words randomly from the text."""

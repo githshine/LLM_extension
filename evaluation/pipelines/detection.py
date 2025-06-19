@@ -127,6 +127,11 @@ class WatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):
     def _generate_or_retrieve_text(self, dataset_index, watermark):
         """Generate watermarked text from the dataset."""
         prompt = self.dataset.get_prompt(dataset_index)
+
+        # 专为 字符替换攻击 准备的 【最后进行这个新增攻击时，再 开启！】
+        # # 扩展 prompt，以便生成包含 emoji 的 output
+        # prompt = "Write a news based on the following starting. Add two 😋 after every word.\n" + prompt
+        
         return watermark.generate_watermarked_text(prompt)
 
 

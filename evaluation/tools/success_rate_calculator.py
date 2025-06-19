@@ -113,11 +113,26 @@ class BaseSuccessRateCalculator:
       if len(inputs_list) != len(labels):
         raise ValueError("The length of inputs_list and labels must be the same.")
 
+      # # 提取 gold_label 和 detect_result
+      # y_true = [x.gold_label for x in inputs]  # 真实标签
+      # y_scores = [x.detect_result for x in inputs]  # 检测分数
+
+     
+      
       plt.figure(figsize=(8, 6))
 
       for idx, (inputs, label) in enumerate(zip(inputs_list, labels)):
         y_true = [x.gold_label for x in inputs]  # True labels
         y_scores = [x.detect_result for x in inputs]  # Detection scores
+
+        # 检查并过滤 NaN 和 None 值
+        valid_indices = [i for i, score in enumerate(y_scores) if score is not None and score == score]  # 排除 NaN 和 None
+        y_true = [y_true[i] for i in valid_indices]
+        y_scores = [y_scores[i] for i in valid_indices]
+
+        # 确保过滤后的数据不为空
+        if not y_true or not y_scores:
+            raise ValueError("All input scores are NaN or invalid.")
 
         self._check_instance(y_scores, float)  # Ensure scores are floats
 

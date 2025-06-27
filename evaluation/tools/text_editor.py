@@ -366,7 +366,7 @@ class DipperParaphraser(TextEditor):
 class EmojiAttack(TextEditor):
     """Add emojis 😋😋 after every word."""
 
-    def __init__(self, ratio: float) -> None:
+    def __init__(sel) -> None:
         super().__init__()
 
     def edit(self, text: str, reference=None):

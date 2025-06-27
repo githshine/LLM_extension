@@ -103,6 +103,10 @@ class WatermarkDetectionPipeline:
         for index in bar:
             generated_or_retrieved_text = self._generate_or_retrieve_text(index, watermark)
             edited_text = self._edit_text(generated_or_retrieved_text, self.dataset.get_prompt(index))
+
+            # print
+            print(f"去除 emoji 后 的文本：{edited_text}\n")
+            
             detect_result = self._detect_watermark(edited_text, watermark)
             evaluation_result.append(WatermarkDetectionResult(generated_or_retrieved_text, edited_text, detect_result))
         
@@ -134,7 +138,10 @@ class WatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):
           # 扩展 prompt，以便生成包含 emoji 的 output
           prompt = "Write a news based on the following starting. Add two 😋 after every word.\n" + prompt
         
-        return watermark.generate_watermarked_text(prompt)
+        # return watermark.generate_watermarked_text(prompt)
+        watermarked_text = watermark.generate_watermarked_text(prompt)
+        print(f"生成的水印文本：{watermarked_text}\n");
+        return watermarked_text;
 
 
 class UnWatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):

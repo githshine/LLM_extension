@@ -54,7 +54,7 @@ class WatermarkDetectionPipeline:
     """Pipeline for watermark detection."""
 
     def __init__(self, dataset: BaseDataset, text_editor_list: list[TextEditor] = [], 
-                 show_progress: bool = True, return_type: DetectionPipelineReturnType = DetectionPipelineReturnType.SCORES) -> None:
+                 show_progress: bool = True, return_type: DetectionPipelineReturnType = DetectionPipelineReturnType.SCORES, change_prompt =  False) -> None:
         """
             Initialize the watermark detection pipeline.
 
@@ -68,6 +68,7 @@ class WatermarkDetectionPipeline:
         self.text_editor_list = text_editor_list
         self.show_progress = show_progress
         self.return_type = return_type
+        self.change_prompt = change_prompt
        
     def _edit_text(self, text: str, prompt: str = None):
         """Edit text using text editors."""
@@ -128,9 +129,10 @@ class WatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):
         """Generate watermarked text from the dataset."""
         prompt = self.dataset.get_prompt(dataset_index)
 
-        # 专为 字符替换攻击 准备的 【最后进行这个新增攻击时，再 开启！】
-        # # 扩展 prompt，以便生成包含 emoji 的 output
-        # prompt = "Write a news based on the following starting. Add two 😋 after every word.\n" + prompt
+        if(self.change_prompt):
+          # 专为 字符替换攻击 准备的 【最后进行这个新增攻击时，再 开启！】
+          # 扩展 prompt，以便生成包含 emoji 的 output
+          prompt = "Write a news based on the following starting. Add two 😋 after every word.\n" + prompt
         
         return watermark.generate_watermarked_text(prompt)
 

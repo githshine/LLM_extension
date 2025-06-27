@@ -127,8 +127,8 @@ class WatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):
     """Pipeline for detecting watermarked text."""
 
     def __init__(self, dataset, text_editor_list=[],
-                 show_progress=True, return_type=DetectionPipelineReturnType.SCORES, *args, **kwargs) -> None:
-        super().__init__(dataset, text_editor_list, show_progress, return_type)
+                 show_progress=True, return_type=DetectionPipelineReturnType.SCORES, change_prompt=False, *args, **kwargs) -> None:
+        super().__init__(dataset, text_editor_list, show_progress, return_type, change_prompt)
 
     def _get_iterable(self):
         """Return an iterable for the prompts."""

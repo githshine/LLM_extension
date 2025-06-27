@@ -128,6 +128,7 @@ class WatermarkedTextDetectionPipeline(WatermarkDetectionPipeline):
 
     def __init__(self, dataset, text_editor_list=[],
                  show_progress=True, return_type=DetectionPipelineReturnType.SCORES, change_prompt=False, *args, **kwargs) -> None:
+        print(f"in WatermarkedTextDetectionPipeline __init__ func, change_prompt:{change_prompt}")
         super().__init__(dataset, text_editor_list, show_progress, return_type, change_prompt)
 
     def _get_iterable(self):

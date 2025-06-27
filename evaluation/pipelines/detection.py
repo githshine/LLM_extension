@@ -69,6 +69,7 @@ class WatermarkDetectionPipeline:
         self.show_progress = show_progress
         self.return_type = return_type
         self.change_prompt = change_prompt
+        print(f"change_prompt value: {change_prompt}")
        
     def _edit_text(self, text: str, prompt: str = None):
         """Edit text using text editors."""

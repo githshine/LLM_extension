@@ -97,6 +97,7 @@ class WatermarkDetectionPipeline:
 
     def evaluate(self, watermark: BaseWatermark):
         """Conduct evaluation utilizing the pipeline."""
+        print("Get into Func evaluate ~~")
         evaluation_result = []
         bar = self._get_progress_bar(self._get_iterable())
 
@@ -105,8 +106,11 @@ class WatermarkDetectionPipeline:
             edited_text = self._edit_text(generated_or_retrieved_text, self.dataset.get_prompt(index))
 
             # print
+            print("Generated watermarked text:\n")
+            print(generated_or_retrieved_text)
+            print('\n')
             print(f"去除 emoji 后 的文本：{edited_text}\n")
-            
+
             detect_result = self._detect_watermark(edited_text, watermark)
             evaluation_result.append(WatermarkDetectionResult(generated_or_retrieved_text, edited_text, detect_result))
         

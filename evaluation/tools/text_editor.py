@@ -238,6 +238,8 @@ class TranslateAttack(TextEditor):
             sentences = nltk.sent_tokenize(text, language='french')
         elif src_lang == 'deu_Latn':  # 德语
             sentences = nltk.sent_tokenize(text, language='german')
+        elif src_lang == 'ita_Latn':  # 意大利语
+            sentences = nltk.sent_tokenize(text, language='italian')
         elif src_lang == 'zho_Hans':  # 中文
             sentences = re.split(r'(?<=[。！？])', text)
             sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
@@ -263,6 +265,7 @@ class TranslateAttack(TextEditor):
                     "fra_Latn": 128003,
                     "deu_Latn": 128004,
                     "jpn_Jpan": 128005,
+                    "ita_Latn": 128006,
                 }
                 inputs["forced_bos_token_id"] = lang_code_to_id.get(tgt_lang, 128001)
             outputs = self.model.generate(**inputs, max_length=512)
@@ -303,11 +306,11 @@ class TranslateAttack(TextEditor):
             results.extend(decoded)
         return " ".join(results) # 输出 字符串
     
-    def edit(self, text: str, reference=None):
+    def edit(self, text: str, src_lang,tgt_lang,  reference=None):
         """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
-        translated_to_chinese = self.translate_batch(text, src_lang="eng_Latn", tgt_lang="zho_Hans")
-        translated_to_english = self.translate_batch(translated_to_chinese, src_lang="zho_Hans", tgt_lang="eng_Latn")
-        return translated_to_english
+        translated_to_targetLang = self.translate_batch(text, src_lang, tgt_lang="zho_Hans")
+        translated_back_to_english = self.translate_batch(translated_to_targetLang, tgt_lang, src_lang)
+        return translated_back_to_english
 
     
 class GPTParaphraser(TextEditor):

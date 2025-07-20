@@ -231,6 +231,50 @@ class TranslateAttack(TextEditor):
         self.tokenizer.src_lang = src_lang
         results = []
 
+        # 针对不同语言分割句子
+        if src_lang == 'eng_Latn':  # 英文
+            sentences = sent_tokenize(text)
+        elif src_lang == 'fra_Latn':  # 法语
+            sentences = nltk.sent_tokenize(text, language='french')
+        elif src_lang == 'deu_Latn':  # 德语
+            sentences = nltk.sent_tokenize(text, language='german')
+        elif src_lang == 'zho_Hans':  # 中文
+            sentences = re.split(r'(?<=[。！？])', text)
+            sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+        elif src_lang == 'jpn_Jpan':  # 日语
+            # 推荐用正则分割日语句子（句号、问号、感叹号等）
+            sentences = re.split(r'(?<=[。！？])', text)
+            sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
+            # 或者用第三方库如 fugashi 或 spaCy 日语模型
+        else:
+            # 默认按英文分句
+            sentences = sent_tokenize(text)
+
+        for i in range(0, len(sentences), self.batch_size):
+            batch = sentences[i:i+self.batch_size]
+            batch_text = " ".join(batch)
+            inputs = self.tokenizer(batch_text, return_tensors="pt", padding=True, truncation=True, max_length=512).to(self.device)
+            if hasattr(self.tokenizer, "lang_code_to_id"):
+                inputs["forced_bos_token_id"] = self.tokenizer.lang_code_to_id[tgt_lang]
+            else:
+                lang_code_to_id = {
+                    "eng_Latn": 128001,
+                    "zho_Hans": 128002,
+                    "fra_Latn": 128003,
+                    "deu_Latn": 128004,
+                    "jpn_Jpan": 128005,
+                }
+                inputs["forced_bos_token_id"] = lang_code_to_id.get(tgt_lang, 128001)
+            outputs = self.model.generate(**inputs, max_length=512)
+            decoded = self.tokenizer.batch_decode(outputs, skip_special_tokens=True)
+            results.extend(decoded)
+        return " ".join(results)
+
+    def translate_batch_old(self, text: str, src_lang, tgt_lang):
+        """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
+        self.tokenizer.src_lang = src_lang
+        results = []
+
         if src_lang == 'eng_Latn':  # 英文
           sentences = sent_tokenize(text)  # 按句子分割
         elif src_lang == 'zho_Hans' :  # 中文简体

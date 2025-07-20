@@ -41,7 +41,7 @@ class TextEditor:
     def __init__(self) -> None:
         pass
 
-    def edit(self, text: str, src_lang=None, tgt_lang=None, reference=None):
+    def edit(self, text: str, reference=None):
         return text
 
 class RandomWalkAttack(TextEditor):
@@ -306,10 +306,10 @@ class TranslateAttack(TextEditor):
             results.extend(decoded)
         return " ".join(results) # 输出 字符串
     
-    def edit(self, text: str, src_lang, tgt_lang,  reference=None):
+    def edit(self, text: str, reference=None):
         """Translate the text using the facebook/nllb-200 model. Default from English to Chinese."""
-        translated_to_targetLang = self.translate_batch(text, src_lang, tgt_lang)
-        translated_back_to_english = self.translate_batch(translated_to_targetLang, tgt_lang, src_lang)
+        translated_to_targetLang = self.translate_batch(text, self.src_lang, self.tgt_lang)
+        translated_back_to_english = self.translate_batch(translated_to_targetLang, self.tgt_lang, self.src_lang)
         return translated_back_to_english
 
     

@@ -106,12 +106,6 @@ class WatermarkDetectionPipeline:
             generated_or_retrieved_text = self._generate_or_retrieve_text(index, watermark)
             edited_text = self._edit_text(generated_or_retrieved_text, self.dataset.get_prompt(index))
 
-            # print
-            print("Generated watermarked text:\n")
-            print(generated_or_retrieved_text)
-            print('\n')
-            print(f"去除 emoji 后 的文本：{edited_text}\n")
-
             detect_result = self._detect_watermark(edited_text, watermark)
             evaluation_result.append(WatermarkDetectionResult(generated_or_retrieved_text, edited_text, detect_result))
         

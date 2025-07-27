@@ -182,6 +182,18 @@ class BaseSuccessRateCalculator:
       for idx, (inputs, label) in enumerate(zip(inputs_list, labels)):
           y_true = [x.gold_label for x in inputs]
           y_scores = [x.detect_result for x in inputs]
+
+           # 检查并过滤 NaN 和 None 值
+          valid_indices = [i for i, score in enumerate(y_scores) if score is not None and score == score]  # 排除 NaN 和 None
+          y_true = [y_true[i] for i in valid_indices]
+          y_scores = [y_scores[i] for i in valid_indices]
+
+          # 确保过滤后的数据不为空
+          if not y_true or not y_scores:
+              raise ValueError("All input scores are NaN or invalid.")
+
+          self._check_instance(y_scores, float)  # Ensure scores are floats
+      
           fpr, tpr, _ = roc_curve(y_true, y_scores)
           roc_auc = auc(fpr, tpr)
           plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = {roc_auc:.4f})')

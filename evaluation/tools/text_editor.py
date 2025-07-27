@@ -241,11 +241,11 @@ class TranslateAttack(TextEditor):
         elif src_lang == 'ita_Latn':  # 意大利语
             sentences = nltk.sent_tokenize(text, language='italian')
         elif src_lang == 'zho_Hans':  # 中文
-            sentences = re.split(r'(?<=[。！？])', text)
+            sentences = re.split(r'(?<=[。！？?!])', text)
             sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
         elif src_lang == 'jpn_Jpan':  # 日语
             # 推荐用正则分割日语句子（句号、问号、感叹号等）
-            sentences = re.split(r'(?<=[。！？])', text)
+            sentences = re.split(r'(?<=[。！？?!])', text)
             sentences = [sentence.strip() for sentence in sentences if sentence.strip()]
             # 或者用第三方库如 fugashi 或 spaCy 日语模型
         else:

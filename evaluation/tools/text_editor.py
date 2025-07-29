@@ -330,8 +330,14 @@ class GoogleTranslateAttack(TextEditor):
 
     def translate(self, text: str, src_lang, tgt_lang):
         """Translate the text using Google Translate."""
-        translated = self.translator.translate(text, src=src_lang, dest=tgt_lang)
-        return translated.text
+        # translated = self.translator.translate(text, src=src_lang, dest=tgt_lang)
+        # return translated.text
+        try:
+            translated = self.translator.translate(text, src=src_lang, dest=tgt_lang)
+            return translated.text
+        except Exception as e:
+            print(f"Google Translate error: {e}")
+            return text  # 或者返回空字符串 ""
 
     def edit(self, text: str, reference=None):
         """Translate to target language and back to source language using Google Translate."""

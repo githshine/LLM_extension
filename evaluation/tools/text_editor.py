@@ -35,6 +35,8 @@ from evaluation.tools.oracle import QualityOracle
 from transformers import T5Tokenizer, T5ForConditionalGeneration, BertTokenizer, BertForMaskedLM, AutoTokenizer, AutoModelForSeq2SeqLM
 import re
 
+from googletrans import Translator as GoogleTranslator
+
 class TextEditor:
     """Base class for text editing."""
 
@@ -312,6 +314,30 @@ class TranslateAttack(TextEditor):
         translated_back_to_english = self.translate_batch(translated_to_targetLang, self.tgt_lang, self.src_lang)
         return translated_back_to_english
 
+
+class GoogleTranslateAttack(TextEditor):
+    """Paraphrase a text using Google Translate API."""
+
+    def __init__(self, src_lang="en", tgt_lang="zh-cn"):
+        """
+        Parameters:
+            src_lang (str): Source language code (e.g., 'en').
+            tgt_lang (str): Target language code (e.g., 'zh-cn').
+        """
+        self.translator = GoogleTranslator()
+        self.src_lang = src_lang
+        self.tgt_lang = tgt_lang
+
+    def translate(self, text: str, src_lang, tgt_lang):
+        """Translate the text using Google Translate."""
+        translated = self.translator.translate(text, src=src_lang, dest=tgt_lang)
+        return translated.text
+
+    def edit(self, text: str, reference=None):
+        """Translate to target language and back to source language using Google Translate."""
+        to_target = self.translate(text, self.src_lang, self.tgt_lang)
+        back_to_src = self.translate(to_target, self.tgt_lang, self.src_lang)
+        return back_to_src
     
 class GPTParaphraser(TextEditor):
     """Paraphrase a text using the GPT model."""

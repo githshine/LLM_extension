@@ -18,6 +18,7 @@
 # ===========================================
 
 import json
+import random
 
 
 class BaseDataset:
@@ -85,6 +86,9 @@ class C4Dataset(BaseDataset):
         """Load data from the C4 dataset file."""
         with open(self.data_source, 'r') as f:
            lines = f.readlines()
+        # 打乱 lines 列表，实现随机顺序
+        random.shuffle(lines)  
+        
         for line in lines[:self.max_samples]:
             item = json.loads(line)
             self.prompts.append(item['prompt'])
